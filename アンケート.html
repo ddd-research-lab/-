@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>アンケート</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#f0eeff;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:30px 16px}
+.card{background:#fff;border-radius:14px;padding:28px;max-width:600px;width:100%;border:1px solid #CECBF6}
+h1{font-size:22px;font-weight:600;color:#26215C;margin-bottom:6px}
+.desc{font-size:14px;color:#7F77DD;margin-bottom:22px}
+.q{margin-bottom:24px}
+.ql{font-size:15px;font-weight:500;color:#26215C;margin-bottom:10px}
+.req{color:#534AB7;font-size:11px;margin-left:4px}
+.minnote{font-size:11px;color:#7F77DD;margin-left:6px}
+.freelabel{font-size:13px;color:#7F77DD;margin-bottom:6px;margin-top:12px}
+textarea{width:100%;padding:10px;border:1px solid #CECBF6;border-radius:8px;font-size:14px;resize:vertical;min-height:80px;font-family:sans-serif;background:#f0eeff;color:#26215C}
+.sbtn{padding:12px 28px;font-size:15px;font-weight:500;border:none;border-radius:9px;background:#534AB7;color:#fff;cursor:pointer;font-family:sans-serif}
+.sbtn:disabled{opacity:.5;cursor:not-allowed}
+.countbadge{display:inline-flex;align-items:center;background:#534AB718;border:1px solid #534AB744;border-radius:999px;padding:5px 14px;margin-bottom:14px;font-size:13px;color:#534AB7;font-family:sans-serif}
+.ok-box{padding:14px 16px;border-radius:10px;background:#534AB722;border:1px solid #534AB744;margin-top:14px}
+.ok-title{font-size:15px;font-weight:500;color:#534AB7;font-family:sans-serif}
+.ok-sub{font-size:13px;color:#7F77DD;margin-top:6px;font-family:sans-serif;line-height:1.6}
+.ok-count{font-size:13px;color:#7F77DD;margin-top:8px;font-family:sans-serif}
+.ok-count strong{color:#534AB7}
+.err-box{padding:11px 15px;border-radius:9px;font-size:14px;margin-top:14px;background:#fcebeb;color:#791f1f;line-height:1.7}
+.res{margin-top:26px;border-top:1px solid #CECBF6;padding-top:20px}
+.rq{margin-bottom:20px}
+.rl{font-size:14px;font-weight:500;color:#26215C;margin-bottom:8px}
+.br{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:13px;color:#26215C}
+.bw{flex:1;background:#CECBF6;border-radius:999px;height:10px;overflow:hidden}
+.bv{height:10px;background:#7F77DD;border-radius:999px;transition:width .5s}
+.bp{min-width:38px;text-align:right;font-size:12px;color:#7F77DD}
+.bc{min-width:36px;text-align:right;font-size:12px;color:#7F77DD;opacity:.7}
+.tot{font-size:12px;color:#7F77DD;margin-top:5px}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>アンケート</h1>
+<div class="desc">DDデッキを使用している方に質問です</div>
+<div class="countbadge" id="countBadge" style="display:none"></div>
+<div id="form"></div>
+<button class="sbtn" id="sb" onclick="submitForm()">送信する</button>
+<div id="msgArea"></div>
+<div class="res" id="res" style="display:none"></div>
+</div>
+<script>
+var QS=[{"id":1,"text":"アビスとトーマスどちらを採用していますか？","type":"freeplus","options":["DDD壊薙王アビス・ラグナロク","DD魔導賢者トーマス","どちらも採用している","どちらも採用していない"],"required":true,"minSel":1,"freeLabel":"理由や使用感などあればご記入ください","placeholder":"","freePlaceholder":""},{"id":2,"text":"DDディフェンス・ソルジャーを採用していますか？","type":"freeplus","options":["採用している","採用していない"],"required":false,"minSel":1,"freeLabel":"理由や使用感などあればご記入ください","placeholder":"","freePlaceholder":""},{"id":3,"text":"戦乙女と常闇どちらを採用していますか？","type":"freeplus","options":["戦乙女の契約書","常闇の契約書","どちらも採用している","どちらも採用していない"],"required":false,"minSel":1,"freeLabel":"理由や使用感などあればご記入ください","placeholder":"自由にご記入ください","freePlaceholder":""},{"id":4,"text":"DDDヘッドハントを採用していますか？","type":"freeplus","options":["採用している","採用していない"],"required":false,"minSel":1,"freeLabel":"理由や使用感などあればご記入ください","placeholder":"","freePlaceholder":""},{"id":5,"text":"DDカウント・サーベイヤーは何枚採用していますか？","type":"freeplus","options":["１枚","２枚","３枚","採用していない"],"required":false,"minSel":1,"freeLabel":"理由や使用感などあればご記入ください","placeholder":"","freePlaceholder":""},{"id":6,"text":"DDスケール・サーベイヤーは何枚採用していますか？","type":"freeplus","options":["１枚","２枚","３枚","採用していない"],"required":false,"minSel":1,"freeLabel":"理由や使用感などあればご記入ください","placeholder":"","freePlaceholder":""},{"id":7,"text":"EXデッキ（テムジン１、アルフレッド１、アーククライシス１、クロヴィス１、サイフリート１、シーザー１、ソロモン１、テル１、大王シーザー１、デスマキナ１、ビルガメス２、ゼウス１）あと２枚入れるとしたら何を採用しますか？","type":"text","options":[],"required":false,"minSel":0,"freeLabel":"","placeholder":"","freePlaceholder":""},{"id":8,"text":"DDデッキの使用歴を教えてください","type":"freeplus","options":["０~１年","１~３年","３~５年","５~７年","７~１０年","１０年以上"],"required":false,"minSel":1,"freeLabel":"","placeholder":"","freePlaceholder":""}];
+var AK='$2a$10$5K7tsyM.o3O0t/INCar61ecFo9kOOtgPnp4EmPgjwCfC8DhCXwU.a';
+var bid='';
+var SHOW_R=true;
+var DUPE=false;
+var SHOW_COUNT=true;
+var COUNT_TIMING='before';
+var SUCCESS_MSG='回答ありがとうございました！';
+var SUCCESS_SUB='ご協力いただきありがとうございます！結果は集計して後日公開します！';
+var T={bg:'#f0eeff',card:'#fff',accent:'#534AB7',text:'#26215C',sub:'#7F77DD',btn:'#534AB7',btnTxt:'#fff',border:'#CECBF6'};
+
+// 選択肢テキストのHTMLエスケープ
+function escQ(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ブロック型 選択UI
+function blockSel(inp,grp,btnC,btnT,cardC,txtC,borderC){
+  document.querySelectorAll('[id^="'+grp+'"]').forEach(function(s){s.style.background=cardC;s.style.color=txtC;s.style.borderColor=borderC;});
+  var sp=inp.nextElementSibling;sp.style.background=btnC;sp.style.color=btnT;sp.style.borderColor=btnC;
+}
+function blockChk(inp,id,btnC,btnT,cardC,txtC,borderC){
+  var sp=document.getElementById(id);
+  if(inp.checked){sp.style.background=btnC;sp.style.color=btnT;sp.style.borderColor=btnC;}
+  else{sp.style.background=cardC;sp.style.color=txtC;sp.style.borderColor=borderC;}
+}
+
+function renderRadio(opts,T,qi){
+  var items=opts.map(function(o,i){
+    return '<label style="cursor:pointer"><input type="radio" name="q'+qi+'" value="'+escQ(o)+'" style="display:none" onchange="blockSel(this,\'br'+qi+'\',\''+T.btn+'\',\''+T.btnTxt+'\',\''+T.card+'\',\''+T.text+'\',\''+T.border+'\')"><span id="br'+qi+'-'+i+'" style="display:block;padding:11px 14px;border-radius:9px;border:1.5px solid '+T.border+';color:'+T.text+';background:'+T.card+';font-size:14px;transition:.15s;user-select:none">'+o+'</span></label>';
+  }).join('');
+  return '<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:4px">'+items+'</div>';
+}
+
+function renderCheck(opts,T,qi){
+  var items=opts.map(function(o,i){
+    return '<label style="cursor:pointer"><input type="checkbox" name="q'+qi+'" value="'+escQ(o)+'" style="display:none" onchange="blockChk(this,\'bc'+qi+'-'+i+'\',\''+T.btn+'\',\''+T.btnTxt+'\',\''+T.card+'\',\''+T.text+'\',\''+T.border+'\')"><span id="bc'+qi+'-'+i+'" style="display:block;padding:11px 14px;border-radius:9px;border:1.5px solid '+T.border+';color:'+T.text+';background:'+T.card+';font-size:14px;transition:.15s;user-select:none">'+o+'</span></label>';
+  }).join('');
+  return '<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:4px">'+items+'</div>';
+}
+
+function buildForm(){
+  var html=QS.map(function(q,i){
+    var req=q.required?'<span class="req">必須</span>':'';
+    var mn=q.minSel>0?'<span class="minnote">'+q.minSel+'個以上選択</span>':'';
+    var inp='';
+    if(q.type==='radio'){
+      inp=renderRadio(q.options,T,i);
+    } else if(q.type==='checkbox'){
+      inp=renderCheck(q.options,T,i);
+    } else if(q.type==='text'){
+      var ph=q.placeholder||'自由にご記入ください';
+      inp='<textarea name="q'+i+'" placeholder="'+ph+'"></textarea>';
+    } else if(q.type==='freeplus'){
+      inp=renderCheck(q.options,T,i);
+      var fl=q.freeLabel||'その他・自由記述';
+      var fph=q.freePlaceholder||'自由にご記入ください';
+      inp+='<div class="freelabel">'+fl+'</div><textarea name="qfree'+i+'" placeholder="'+fph+'" style="min-height:72px"></textarea>';
+    }
+    return '<div class="q"><div class="ql">Q'+(i+1)+'. '+q.text+req+mn+'</div>'+inp+'</div>';
+  }).join('');
+  document.getElementById('form').innerHTML=html;
+}
+
+async function getData(){
+  if(!bid)return null;
+  try{
+    var r=await fetch('https://api.jsonbin.io/v3/b/'+bid+'/latest',{headers:{'X-Master-Key':AK}});
+    if(!r.ok)return null;
+    var d=await r.json();return d.record;
+  }catch(e){return null;}
+}
+
+function updateCountBadge(n){
+  var el=document.getElementById('countBadge');
+  if(!el)return;
+  el.textContent=n+'人が回答済み';
+  el.style.display='inline-flex';
+}
+
+async function init(){
+  if(!AK||AK==='YOUR_JSONBIN_API_KEY')return;
+  if(SHOW_COUNT&&(COUNT_TIMING==='before'||COUNT_TIMING==='both')){
+    var data=await getData();
+    if(data&&data.responses)updateCountBadge(data.responses.length);
+  }
+}
+
+async function submitForm(){
+  if(DUPE&&localStorage.getItem('sv_done')){showErr('すでに回答済みです。');return;}
+  var btn=document.getElementById('sb');btn.disabled=true;
+  var ans={};var errs=[];
+  for(var i=0;i<QS.length;i++){
+    var q=QS[i];
+    if(q.type==='radio'){
+      var e=document.querySelector('[name=q'+i+']:checked');
+      ans[i]=e?e.value:'';
+      if(q.required&&!ans[i])errs.push('Q'+(i+1)+': 選択してください。');
+    } else if(q.type==='checkbox'){
+      ans[i]=Array.from(document.querySelectorAll('[name=q'+i+']:checked')).map(function(e){return e.value;});
+      if(q.required&&!ans[i].length)errs.push('Q'+(i+1)+': 選択してください。');
+      else if(q.minSel>0&&ans[i].length<q.minSel)errs.push('Q'+(i+1)+': '+q.minSel+'個以上選択してください。');
+    } else if(q.type==='text'){
+      var el=document.querySelector('[name=q'+i+']');
+      ans[i]=el?el.value:'';
+      if(q.required&&!ans[i].trim())errs.push('Q'+(i+1)+': 入力してください。');
+    } else if(q.type==='freeplus'){
+      ans[i]=Array.from(document.querySelectorAll('[name=q'+i+']:checked')).map(function(e){return e.value;});
+      var fEl=document.querySelector('[name=qfree'+i+']');
+      ans['free'+i]=fEl?fEl.value:'';
+      if(q.minSel>0&&ans[i].length<q.minSel)errs.push('Q'+(i+1)+': '+q.minSel+'個以上選択してください。');
+      else if(q.required&&!ans[i].length&&!ans['free'+i].trim())errs.push('Q'+(i+1)+': 回答してください。');
+    }
+  }
+  if(errs.length){showErr(errs.join('<br>'));btn.disabled=false;return;}
+  try{
+    var data=await getData()||{responses:[],questions:QS};
+    data.responses.push({ts:Date.now(),answers:ans});
+    data.questions=QS;
+    if(!bid){
+      var r=await fetch('https://api.jsonbin.io/v3/b',{method:'POST',headers:{'Content-Type':'application/json','X-Master-Key':AK,'X-Bin-Private':'false'},body:JSON.stringify(data)});
+      var d=await r.json();bid=d.metadata.id;
+    } else {
+      await fetch('https://api.jsonbin.io/v3/b/'+bid,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':AK},body:JSON.stringify(data)});
+    }
+    if(DUPE)localStorage.setItem('sv_done','1');
+    btn.style.display='none';
+    showSuccess(data.responses.length);
+    if(SHOW_R)renderRes(data.responses);
+  } catch(e){showErr('送信に失敗しました。時間をおいて再試行してください。');btn.disabled=false;}
+}
+
+function showErr(t){
+  var el=document.getElementById('msgArea');
+  el.innerHTML='<div class="err-box">'+t+'</div>';
+}
+
+function showSuccess(total){
+  var el=document.getElementById('msgArea');
+  var ch=SHOW_COUNT&&(COUNT_TIMING==='after'||COUNT_TIMING==='both')?'<div class="ok-count">あなたを含む <strong>'+total+'人</strong> が回答しました</div>':'';
+  el.innerHTML='<div class="ok-box"><div class="ok-title">'+SUCCESS_MSG+'</div>'+(SUCCESS_SUB?'<div class="ok-sub">'+SUCCESS_SUB+'</div>':'')+ch+'</div>';
+}
+
+function renderRes(responses){
+  var el=document.getElementById('res');if(!el)return;el.style.display='';
+  var tot=responses.length;
+  var html='<div style="font-weight:600;margin-bottom:14px;color:#26215C">集計結果（'+tot+'件）</div>';
+  QS.forEach(function(q,i){
+    if(q.type==='text'){
+      html+='<div class="rq"><div class="rl">'+q.text+'</div><div class="tot">自由記述（集計対象外）</div></div>';
+      return;
+    }
+    var opts=q.options.slice();
+    if(q.type==='freeplus')opts.push('自由記述あり');
+    var cnt={};opts.forEach(function(o){cnt[o]=0;});
+    responses.forEach(function(r){
+      var a=r.answers[i];
+      if(Array.isArray(a))a.forEach(function(v){if(cnt[v]!==undefined)cnt[v]++;});
+      else if(a&&cnt[a]!==undefined)cnt[a]++;
+      if(q.type==='freeplus'&&r.answers['free'+i]&&r.answers['free'+i].trim())cnt['自由記述あり']++;
+    });
+    var bars=opts.map(function(o){
+      var c=cnt[o];var p=tot?Math.round(c/tot*100):0;
+      return '<div class="br"><span style="min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+o+'</span><div class="bw"><div class="bv" style="width:'+p+'%"></div></div><span class="bp">'+p+'%</span><span class="bc">'+c+'件</span></div>';
+    }).join('');
+    html+='<div class="rq"><div class="rl">'+q.text+'</div>'+bars+'<div class="tot">合計 '+tot+'件</div></div>';
+  });
+  el.innerHTML=html;
+}
+
+buildForm();
+init();
+</script>
+</body>
+</html>
